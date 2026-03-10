@@ -1,0 +1,62 @@
+// Teste: Descubra o animal
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Descubra o Animal</title>
+</head>
+<body>
+  <h2>Descubra o Animal</h2>
+  <button onclick="descobrirAnimal()">Iniciar</button>
+
+  <script>
+    function descobrirAnimal() {
+      if (confirm("O animal é mamífero?")) {
+        if (confirm("É quadrúpede?")) {
+          if (confirm("É carnívoro?")) {
+            alert("O animal escolhido foi o Leão.");
+          } else if (confirm("É herbívoro?")) {
+            alert("O animal escolhido foi o Cavalo.");
+          }
+        } else if (confirm("É bípede?")) {
+          if (confirm("É onívoro?")) {
+            alert("O animal escolhido foi o Homem.");
+          } else if (confirm("É frutívoro?")) {
+            alert("O animal escolhido foi o Macaco.");
+          }
+        } else if (confirm("É voador?")) {
+          alert("O animal escolhido foi o Morcego.");
+        } else if (confirm("É aquático?")) {
+          alert("O animal escolhido foi a Baleia.");
+        }
+      } 
+      else if (confirm("O animal é uma ave?")) {
+        if (confirm("A ave é não-voadora?")) {
+          if (confirm("Vive em região tropical?")) {
+            alert("O animal escolhido foi o Avestruz.");
+          } else if (confirm("Vive em região polar?")) {
+            alert("O animal escolhido foi o Pinguim.");
+          }
+        } else if (confirm("A ave é nadadora?")) {
+          alert("O animal escolhido foi o Pato.");
+        } else if (confirm("A ave é de rapina?")) {
+          alert("O animal escolhido foi a Águia.");
+        }
+      } 
+      else if (confirm("O animal é um réptil?")) {
+        if (confirm("Possui casco?")) {
+          alert("O animal escolhido foi a Tartaruga.");
+        } else if (confirm("É carnívoro?")) {
+          alert("O animal escolhido foi o Crocodilo.");
+        } else if (confirm("Não possui patas?")) {
+          alert("O animal escolhido foi a Cobra.");
+        }
+      } 
+      else {
+        alert("Animal não identificado com base nas perguntas.");
+      }
+    }
+  </script>
+</body>
+</html>
