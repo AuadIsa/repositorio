@@ -1,0 +1,41 @@
+// Contagem de dias de vida em php 
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Treinamento PHP</title>
+</head>
+<body>
+
+<?php
+$nome = "Isabella";
+
+$diaNascimento = 24;
+$mesNascimento = 12;
+$anoNascimento = 1994;
+
+$diaAtual = 25;
+$mesAtual = 2;
+$anoAtual = 2026;
+
+$anos = $anoAtual - $anoNascimento;
+$meses = $mesAtual - $mesNascimento;
+$dias = $diaAtual - $diaNascimento;
+
+$totalDias = ($anos * 365) + ($meses * 30) + $dias;
+
+if ($totalDias >= 0) {
+    echo "<h1>$nome</h1>";
+    echo "<h1 style='font-size:26px; color:red;'>";
+    echo "Você já viveu aproximadamente $totalDias dias.";
+    echo "</h1>";
+} else {
+    echo "<h1 style='color:red;'>Data inválida.</h1>";
+}
+
+echo "Não considerei mês com 28 ou 31 dias e nem ano bissexto";
+?>
+
+</body>
+</html>
