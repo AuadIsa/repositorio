@@ -1,0 +1,31 @@
+//Contagem de anos de vida utilizando html e php
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Treinamento PHP</title>
+</head>
+<body>
+
+<?php
+$nome = "Isa";
+$anoNascimento = 1994;  
+$anoAtual = 2026;
+$idade = $anoAtual - $anoNascimento;
+
+if ($idade >= 0) {
+    echo "<h1>$nome</h1>";
+    echo "<h1 style='font-size:26px; color:red;'>";
+    echo "Você tem $idade anos.";
+    echo "</h1>";
+} else {
+    echo "<h1 style='color:red;'>Ano de nascimento inválido.</h1>";
+}
+?>
+
+<?php
+echo "Corrigindo: A idade é 31. Antecipei.";
+?>
+</body>
+</html>
