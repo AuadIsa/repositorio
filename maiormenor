@@ -1,0 +1,58 @@
+//Calculo do maior e menor. Se a for menor que b, então a+1. Se a for maior que b, então a-1
+
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+    <title> Verificar Maior Menor</title>
+
+</head>
+<body>
+    <h2>Cálculo maior e menor (com laços)</h2>
+    <label for="v1">Valor 1:</label>
+    <input type="number" id="v1"></input>
+    <label for="v2">Valor 2: </label>
+    <input type="number" id="v2"/>
+    <button onclick="verificarMaiorMenor()">Verificar</button>
+    
+
+
+    <script>
+            function verificarMaiorMenor() {
+                var a = parseInt(document.getElementById("v1").value);
+                var b = parseInt(document.getElementById("v2").value);
+
+                if (isNaN(a) || isNaN(b)) {
+                    alert("Informe dois valores inteiros válidos.");
+                    return;
+                }
+
+                if (a === b) {
+                    alert("Os valores são iguais (" + a + ").");
+                    return;
+                }
+
+                var passos = [];
+
+                if (a < b) {
+                    while (a <= b) {
+                        passos.push(a+1); //utilizado para guardar a sequencia de valores anteriores. O "push" inseri no final do array atual++;
+                        a++;
+                    }
+                    alert("a < b\nSequência: " + passos.join(", ") + 
+                        "\nResultado final (a ultrapassou b): a = " + a);
+                } else {
+                    while (a >= b) {
+                        passos.push(a-1); //utilizado para guardar a sequencia de valores anteriores. O "push" inseri no final do array atualB--;
+                        a--;
+                    }
+                    //o atributo JOIN "junta" todos os elementos de um array numa mesma string
+                    alert("a > b\nSequência: " + passos.join(", ") + 
+                        "\nResultado final (a ficou menor que b): a = " + a);
+                }
+            }
+        </script>
+
+
+</body>
