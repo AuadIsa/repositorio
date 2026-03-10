@@ -1,0 +1,807 @@
+#include <iostream>
+#include <iomanip>
+#include <string.h>
+#include <time.h>
+
+using namespace std;
+
+// Estruturas ==========================================
+typedef struct { //J� coloquei no texto
+    int dia, mes, ano;
+    int hora, min, seg;
+} TIPO_DATA;
+
+typedef struct { // J� coloquei no texto
+    char Descricao[50];
+    int mes, categoriaDesp;
+    float valor;
+    TIPO_DATA Data;
+} DESPESA;
+
+typedef struct {
+    char Descricao[50];
+    int mes;
+    float valor;
+    TIPO_DATA Data;
+} GANHOS;
+
+// Vari�veis globais ====================================
+FILE *DespesasMensais;
+FILE *GanhosMensais;
+
+DESPESA despesa;
+GANHOS ganho;
+
+// Prot�tipos ===========================================
+void MenuPrincipal();
+void CadastroDespesas();
+void Relatorio_Despesas();
+void CadastroEntradas();
+void Relatorio_Entradas();
+TIPO_DATA Data();
+void Imprime_Data(TIPO_DATA D);
+
+// NOVAS FUN��ES ADICIONADAS ============================
+void EditarDespesa();           // Editar registro de despesa
+void ExcluirDespesa();          // Excluir registro de despesa
+void EditarGanho();             // Editar registro de ganho
+void ExcluirGanho();            // Excluir registro de ganho
+void RelatorioDespesasPeriodo(); // Relat�rio por per�odo espec�fico
+void RelatorioGanhosPeriodo();   // Relat�rio por per�odo espec�fico
+void SomaTotalDespesas();        // Calcular soma total das despesas
+void SomaTotalGanhos();          // Calcular soma total dos ganhos
+void SaldoMensal();              // Calcular saldo (ganhos - despesas)
+string GetNomeCategoria(int categoria); // Converter c�digo da categoria para nome
+void MenuEditarExcluirDespesas();
+void MenuEditarExcluirGanhos();
+void MenuRelatoriosPeriodo();
+void MenuResumoFinanceiro();
+
+// ======================================================
+int main() {
+    setlocale(LC_ALL, "portuguese");
+    MenuPrincipal();
+    return 0;
+}
+
+// ======================================================
+void MenuPrincipal() {
+    int op;
+    do {
+        system("cls");
+        cout << "\n======= MENU PRINCIPAL =======\n";
+        cout << "1 - Cadastro de Sa�das\n";
+        cout << "2 - Relat�rio de Sa�das\n";
+        cout << "3 - Cadastro de Entradas\n";
+        cout << "4 - Relat�rio de Entradas\n";
+        // NOVAS OP��ES DO MENU
+        cout << "5 - Editar/Excluir Despesas\n";
+        cout << "6 - Editar/Excluir Ganhos\n";
+        cout << "7 - Relat�rios por Per�odo\n";
+        cout << "8 - Resumo Financeiro\n";
+        cout << "0 - Sair\n";
+        cout << "Escolha uma op��o: ";
+        cin >> op;
+
+        switch (op) {
+            case 1: CadastroDespesas(); break;
+            case 2: Relatorio_Despesas(); break;
+            case 3: CadastroEntradas(); break;
+            case 4: Relatorio_Entradas(); break;
+            case 5: MenuEditarExcluirDespesas(); break;      // NOVA FUN��O
+            case 6: MenuEditarExcluirGanhos(); break;        // NOVA FUN��O
+            case 7: MenuRelatoriosPeriodo(); break;          // NOVA FUN��O
+            case 8: MenuResumoFinanceiro(); break;           // NOVA FUN��O
+            case 0: cout << "Encerrando o programa...\n"; break;
+            default: cout << "Op��o inv�lida!\n"; system("pause"); break;
+        }
+    } while (op != 0);
+}
+
+// NOVO: Menu para editar/excluir despesas
+void MenuEditarExcluirDespesas() {
+    int op;
+    do {
+        system("cls");
+        cout << "\n======= EDITAR/EXCLUIR DESPESAS =======\n";
+        cout << "1 - Editar Despesa\n";
+        cout << "2 - Excluir Despesa\n";
+        cout << "3 - Voltar ao Menu Principal\n";
+        cout << "Escolha uma op��o: ";
+        cin >> op;
+
+        switch (op) {
+            case 1: EditarDespesa(); break;
+            case 2: ExcluirDespesa(); break;
+            case 3: return;
+            default: cout << "Op��o inv�lida!\n"; system("pause"); break;
+        }
+    } while (op != 3);
+}
+
+// NOVO: Menu para editar/excluir ganhos
+void MenuEditarExcluirGanhos() {
+    int op;
+    do {
+        system("cls");
+        cout << "\n======= EDITAR/EXCLUIR GANHOS =======\n";
+        cout << "1 - Editar Ganho\n";
+        cout << "2 - Excluir Ganho\n";
+        cout << "3 - Voltar ao Menu Principal\n";
+        cout << "Escolha uma op��o: ";
+        cin >> op;
+
+        switch (op) {
+            case 1: EditarGanho(); break;
+            case 2: ExcluirGanho(); break;
+            case 3: return;
+            default: cout << "Op��o inv�lida!\n"; system("pause"); break;
+        }
+    } while (op != 3);
+}
+
+// NOVO: Menu para relat�rios por per�odo
+void MenuRelatoriosPeriodo() {
+    int op;
+    do {
+        system("cls");
+        cout << "\n======= RELAT�RIOS POR PER�ODO =======\n";
+        cout << "1 - Relat�rio de Despesas por Per�odo\n";
+        cout << "2 - Relat�rio de Ganhos por Per�odo\n";
+        cout << "3 - Voltar ao Menu Principal\n";
+        cout << "Escolha uma op��o: ";
+        cin >> op;
+
+        switch (op) {
+            case 1: RelatorioDespesasPeriodo(); break;
+            case 2: RelatorioGanhosPeriodo(); break;
+            case 3: return;
+            default: cout << "Op��o inv�lida!\n"; system("pause"); break;
+        }
+    } while (op != 3);
+}
+
+// NOVO: Menu para resumo financeiro
+void MenuResumoFinanceiro() {
+    int op;
+    do {
+        system("cls");
+        cout << "\n======= RESUMO FINANCEIRO =======\n";
+        cout << "1 - Soma Total de Despesas\n";
+        cout << "2 - Soma Total de Ganhos\n";
+        cout << "3 - Saldo Mensal\n";
+        cout << "4 - Voltar ao Menu Principal\n";
+        cout << "Escolha uma op��o: ";
+        cin >> op;
+
+        switch (op) {
+            case 1: SomaTotalDespesas(); break;
+            case 2: SomaTotalGanhos(); break;
+            case 3: SaldoMensal(); break;
+            case 4: return;
+            default: cout << "Op��o inv�lida!\n"; system("pause"); break;
+        }
+    } while (op != 4);
+}
+
+// ======================================================
+void CadastroDespesas() {
+    char continuar;
+    TIPO_DATA data;
+
+    DespesasMensais = fopen("despesas.dat", "ab");
+    if (!DespesasMensais) {
+        cout << "Erro ao abrir o arquivo de despesas.\n";
+        return;
+    }
+
+    do {
+        system("cls");
+        cout << "**** CATEGORIAS ****\n";
+        cout << "1 - Mercado\n";
+        cout << "2 - Sa�de\n";
+        cout << "3 - Lazer\n";
+        cout << "4 - Extras\n";
+        cout << "\nCategoria: ";
+        cin >> despesa.categoriaDesp;
+
+        cout << "Nome/local: ";
+        cin.ignore(); // limpa buffer antes do getline
+        cin.getline(despesa.Descricao, sizeof(despesa.Descricao));
+
+        cout << "Valor (R$): ";
+        cin >> despesa.valor;
+
+        cout << "M�s (1-Jan ... 12-Dez): ";
+        cin >> despesa.mes;
+
+        despesa.Data = Data(); // registra data/hora
+        fwrite(&despesa, sizeof(despesa), 1, DespesasMensais);
+
+        cout << "Despesa cadastrada com sucesso!\n"; // FEEDBACK MELHORADO
+
+        cout << "Cadastrar outra despesa? (s/n): ";
+        cin >> continuar;
+
+    } while (continuar == 's' || continuar == 'S');
+
+    fclose(DespesasMensais);
+}
+
+// ======================================================
+void Relatorio_Despesas() {
+    system("cls");
+    DespesasMensais = fopen("despesas.dat", "rb");
+    if (!DespesasMensais) {
+        cout << "Nenhum registro encontrado.\n";
+        system("pause");
+        return;
+    }
+
+    float total = 0; // VARI�VEL PARA CALCULAR TOTAL
+    cout << "\n========== RELAT�RIO DE DESPESAS ==========\n";
+    // MELHORIA: Alterado "Categoria" para mostrar nome em vez de n�mero
+    cout << left << setw(15) << "Categoria"
+         << setw(25) << "Local"
+         << setw(10) << "M�s"
+         << setw(30) << "Data/Hora"
+         << setw(10) << "Valor (R$)" << endl;
+
+    cout << "---------------------------------------------------------------\n";
+
+    while (fread(&despesa, sizeof(despesa), 1, DespesasMensais)) {
+        cout << left << setw(15) << GetNomeCategoria(despesa.categoriaDesp) // USA NOME DA CATEGORIA
+             << setw(25) << despesa.Descricao
+             << setw(10) << despesa.mes;
+        Imprime_Data(despesa.Data);
+        cout << "   R$ " << fixed << setprecision(2) << despesa.valor << endl;
+        total += despesa.valor; // SOMA O VALOR AO TOTAL
+    }
+
+    // NOVO: EXIBE O TOTAL DAS DESPESAS
+    cout << "---------------------------------------------------------------\n";
+    cout << "TOTAL DAS DESPESAS: R$ " << fixed << setprecision(2) << total << endl;
+
+    fclose(DespesasMensais);
+    system("pause");
+}
+
+// ======================================================
+void CadastroEntradas() {
+    char continuar;
+    TIPO_DATA data;
+
+    GanhosMensais = fopen("ganhos.dat", "ab");
+    if (!GanhosMensais) {
+        cout << "Erro ao abrir o arquivo de ganhos.\n";
+        return;
+    }
+
+    do {
+        system("cls");
+        cout << "Origem do ganho: ";
+        cin.ignore();
+        cin.getline(ganho.Descricao, sizeof(ganho.Descricao));
+
+        cout << "M�s: ";
+        cin >> ganho.mes;
+
+        cout << "Valor (R$): ";
+        cin >> ganho.valor;
+
+        ganho.Data = Data();
+        fwrite(&ganho, sizeof(ganho), 1, GanhosMensais);
+
+        cout << "Ganho cadastrado com sucesso!\n"; // FEEDBACK MELHORADO
+
+        cout << "Cadastrar outro ganho? (s/n): ";
+        cin >> continuar;
+
+    } while (continuar == 's' || continuar == 'S');
+
+    fclose(GanhosMensais);
+}
+
+// ======================================================
+void Relatorio_Entradas() {
+    system("cls");
+    GanhosMensais = fopen("ganhos.dat", "rb");
+    if (!GanhosMensais) {
+        cout << "Nenhum registro encontrado.\n";
+        system("pause");
+        return;
+    }
+
+    float total = 0; // VARI�VEL PARA CALCULAR TOTAL
+    cout << "\n========== RELAT�RIO DE ENTRADAS ==========\n";
+    cout << left << setw(25) << "Origem"
+         << setw(10) << "M�s"
+         << setw(30) << "Data/Hora"
+         << setw(10) << "Valor (R$)" << endl;
+
+    cout << "-------------------------------------------------------------\n";
+
+    while (fread(&ganho, sizeof(ganho), 1, GanhosMensais)) {
+        cout << left << setw(25) << ganho.Descricao
+             << setw(10) << ganho.mes;
+        Imprime_Data(ganho.Data);
+        cout << "   R$ " << fixed << setprecision(2) << ganho.valor << endl;
+        total += ganho.valor; // SOMA O VALOR AO TOTAL
+    }
+
+    // NOVO: EXIBE O TOTAL DOS GANHOS
+    cout << "-------------------------------------------------------------\n";
+    cout << "TOTAL DOS GANHOS: R$ " << fixed << setprecision(2) << total << endl;
+
+    fclose(GanhosMensais);
+    system("pause");
+}
+
+// ======================================================
+TIPO_DATA Data() {
+    TIPO_DATA D;
+    time_t mytime = time(NULL);
+    struct tm tm = *localtime(&mytime);
+
+    D.dia = tm.tm_mday;
+    D.mes = tm.tm_mon + 1;
+    D.ano = tm.tm_year + 1900;
+    D.hora = tm.tm_hour;
+    D.min = tm.tm_min;
+    D.seg = tm.tm_sec;
+
+    return D;
+}
+
+// ======================================================
+void Imprime_Data(TIPO_DATA D) {
+    cout << setfill('0')
+         << setw(2) << D.dia << "/"
+         << setw(2) << D.mes << "/"
+         << setw(4) << D.ano << " "
+         << setw(2) << D.hora << ":"
+         << setw(2) << D.min << ":"
+         << setw(2) << D.seg
+         << setfill(' ');
+}
+
+// NOVAS FUN��ES IMPLEMENTADAS =========================
+
+// FUN��O PARA CONVERTER C�DIGO DA CATEGORIA EM NOME
+string GetNomeCategoria(int categoria) {
+    switch(categoria) {
+        case 1: return "Mercado";
+        case 2: return "Sa�de";
+        case 3: return "Lazer";
+        case 4: return "Extras";
+        default: return "Outros";
+    }
+}
+
+// FUN��O PARA EDITAR UMA DESPESA EXISTENTE
+void EditarDespesa() {
+    system("cls");
+    cout << "=== EDITAR DESPESA ===\n";
+
+    // Primeiro, lista todas as despesas para o usu�rio escolher
+    Relatorio_Despesas();
+
+    FILE *tempFile;
+    int encontrou = 0;
+    char descricaoBusca[50];
+
+    cout << "\nDigite a descri��o da despesa que deseja editar: ";
+    cin.ignore();
+    cin.getline(descricaoBusca, sizeof(descricaoBusca));
+
+    DespesasMensais = fopen("despesas.dat", "rb");
+    tempFile = fopen("temp.dat", "wb");
+
+    if (!DespesasMensais || !tempFile) {
+        cout << "Erro ao abrir arquivos.\n";
+        return;
+    }
+
+    while (fread(&despesa, sizeof(despesa), 1, DespesasMensais)) {
+        if (strcmp(despesa.Descricao, descricaoBusca) == 0) {
+            encontrou = 1;
+            cout << "Despesa encontrada! Editando...\n\n";
+
+            // Solicita novos dados
+            cout << "Nova descri��o [" << despesa.Descricao << "]: ";
+            cin.getline(despesa.Descricao, sizeof(despesa.Descricao));
+
+            cout << "Novo valor [" << despesa.valor << "]: ";
+            cin >> despesa.valor;
+
+            cout << "Novo m�s [" << despesa.mes << "]: ";
+            cin >> despesa.mes;
+
+            cout << "Nova categoria (1-Mercado, 2-Sa�de, 3-Lazer, 4-Extras) [" << despesa.categoriaDesp << "]: ";
+            cin >> despesa.categoriaDesp;
+
+            despesa.Data = Data(); // Atualiza data/hora da edi��o
+
+            cout << "Despesa editada com sucesso!\n";
+        }
+        fwrite(&despesa, sizeof(despesa), 1, tempFile);
+    }
+
+    fclose(DespesasMensais);
+    fclose(tempFile);
+
+    if (encontrou) {
+        remove("despesas.dat");
+        rename("temp.dat", "despesas.dat");
+    } else {
+        cout << "Despesa n�o encontrada!\n";
+        remove("temp.dat");
+    }
+
+    system("pause");
+}
+
+// FUN��O PARA EXCLUIR UMA DESPESA
+void ExcluirDespesa() {
+    system("cls");
+    cout << "=== EXCLUIR DESPESA ===\n";
+
+    Relatorio_Despesas();
+
+    FILE *tempFile;
+    int encontrou = 0;
+    char descricaoBusca[50];
+
+    cout << "\nDigite a descri��o da despesa que deseja excluir: ";
+    cin.ignore();
+    cin.getline(descricaoBusca, sizeof(descricaoBusca));
+
+    DespesasMensais = fopen("despesas.dat", "rb");
+    tempFile = fopen("temp.dat", "wb");
+
+    if (!DespesasMensais || !tempFile) {
+        cout << "Erro ao abrir arquivos.\n";
+        return;
+    }
+
+    while (fread(&despesa, sizeof(despesa), 1, DespesasMensais)) {
+        if (strcmp(despesa.Descricao, descricaoBusca) == 0) {
+            encontrou = 1;
+            cout << "Despesa exclu�da: " << despesa.Descricao << " - R$ " << despesa.valor << endl;
+        } else {
+            fwrite(&despesa, sizeof(despesa), 1, tempFile);
+        }
+    }
+
+    fclose(DespesasMensais);
+    fclose(tempFile);
+
+    if (encontrou) {
+        remove("despesas.dat");
+        rename("temp.dat", "despesas.dat");
+        cout << "Despesa exclu�da com sucesso!\n";
+    } else {
+        cout << "Despesa n�o encontrada!\n";
+        remove("temp.dat");
+    }
+
+    system("pause");
+}
+
+// FUN��O PARA EDITAR UM GANHO EXISTENTE
+void EditarGanho() {
+    system("cls");
+    cout << "=== EDITAR GANHO ===\n";
+
+    Relatorio_Entradas();
+
+    FILE *tempFile;
+    int encontrou = 0;
+    char descricaoBusca[50];
+
+    cout << "\nDigite a descri��o do ganho que deseja editar: ";
+    cin.ignore();
+    cin.getline(descricaoBusca, sizeof(descricaoBusca));
+
+    GanhosMensais = fopen("ganhos.dat", "rb");
+    tempFile = fopen("temp_ganhos.dat", "wb");
+
+    if (!GanhosMensais || !tempFile) {
+        cout << "Erro ao abrir arquivos.\n";
+        return;
+    }
+
+    while (fread(&ganho, sizeof(ganho), 1, GanhosMensais)) {
+        if (strcmp(ganho.Descricao, descricaoBusca) == 0) {
+            encontrou = 1;
+            cout << "Ganho encontrado! Editando...\n\n";
+
+            cout << "Nova descri��o [" << ganho.Descricao << "]: ";
+            cin.getline(ganho.Descricao, sizeof(ganho.Descricao));
+
+            cout << "Novo valor [" << ganho.valor << "]: ";
+            cin >> ganho.valor;
+
+            cout << "Novo m�s [" << ganho.mes << "]: ";
+            cin >> ganho.mes;
+
+            ganho.Data = Data(); // Atualiza data/hora
+
+            cout << "Ganho editado com sucesso!\n";
+        }
+        fwrite(&ganho, sizeof(ganho), 1, tempFile);
+    }
+
+    fclose(GanhosMensais);
+    fclose(tempFile);
+
+    if (encontrou) {
+        remove("ganhos.dat");
+        rename("temp_ganhos.dat", "ganhos.dat");
+    } else {
+        cout << "Ganho n�o encontrado!\n";
+        remove("temp_ganhos.dat");
+    }
+
+    system("pause");
+}
+
+// FUN��O PARA EXCLUIR UM GANHO
+void ExcluirGanho() {
+    system("cls");
+    cout << "=== EXCLUIR GANHO ===\n";
+
+    Relatorio_Entradas();
+
+    FILE *tempFile;
+    int encontrou = 0;
+    char descricaoBusca[50];
+
+    cout << "\nDigite a descri��o do ganho que deseja excluir: ";
+    cin.ignore();
+    cin.getline(descricaoBusca, sizeof(descricaoBusca));
+
+    GanhosMensais = fopen("ganhos.dat", "rb");
+    tempFile = fopen("temp_ganhos.dat", "wb");
+
+    if (!GanhosMensais || !tempFile) {
+        cout << "Erro ao abrir arquivos.\n";
+        return;
+    }
+
+    while (fread(&ganho, sizeof(ganho), 1, GanhosMensais)) {
+        if (strcmp(ganho.Descricao, descricaoBusca) == 0) {
+            encontrou = 1;
+            cout << "Ganho exclu�do: " << ganho.Descricao << " - R$ " << ganho.valor << endl;
+        } else {
+            fwrite(&ganho, sizeof(ganho), 1, tempFile);
+        }
+    }
+
+    fclose(GanhosMensais);
+    fclose(tempFile);
+
+    if (encontrou) {
+        remove("ganhos.dat");
+        rename("temp_ganhos.dat", "ganhos.dat");
+        cout << "Ganho exclu�do com sucesso!\n";
+    } else {
+        cout << "Ganho n�o encontrado!\n";
+        remove("temp_ganhos.dat");
+    }
+
+    system("pause");
+}
+
+// FUN��O PARA RELAT�RIO DE DESPESAS POR PER�ODO
+void RelatorioDespesasPeriodo() {
+    system("cls");
+    int mesInicio, mesFim, anoInicio, anoFim;
+
+    cout << "=== RELAT�RIO DE DESPESAS POR PER�ODO ===\n";
+    cout << "M�s inicial (1-12): ";
+    cin >> mesInicio;
+    cout << "Ano inicial: ";
+    cin >> anoInicio;
+    cout << "M�s final (1-12): ";
+    cin >> mesFim;
+    cout << "Ano final: ";
+    cin >> anoFim;
+
+    DespesasMensais = fopen("despesas.dat", "rb");
+    if (!DespesasMensais) {
+        cout << "Nenhum registro encontrado.\n";
+        system("pause");
+        return;
+    }
+
+    float total = 0;
+    int encontrou = 0;
+
+    cout << "\n========== DESPESAS NO PER�ODO: " << mesInicio << "/" << anoInicio;
+    cout << " a " << mesFim << "/" << anoFim << " ==========\n";
+    cout << left << setw(15) << "Categoria" << setw(25) << "Local"
+         << setw(10) << "M�s" << setw(10) << "Ano" << setw(10) << "Valor (R$)" << endl;
+    cout << "---------------------------------------------------------------\n";
+
+    while (fread(&despesa, sizeof(despesa), 1, DespesasMensais)) {
+        // Verifica se a despesa est� dentro do per�odo especificado
+        if ((despesa.Data.ano > anoInicio || (despesa.Data.ano == anoInicio && despesa.Data.mes >= mesInicio)) &&
+            (despesa.Data.ano < anoFim || (despesa.Data.ano == anoFim && despesa.Data.mes <= mesFim))) {
+
+            cout << left << setw(15) << GetNomeCategoria(despesa.categoriaDesp)
+                 << setw(25) << despesa.Descricao
+                 << setw(10) << despesa.Data.mes
+                 << setw(10) << despesa.Data.ano
+                 << "R$ " << fixed << setprecision(2) << despesa.valor << endl;
+
+            total += despesa.valor;
+            encontrou = 1;
+        }
+    }
+
+    if (!encontrou) {
+        cout << "Nenhuma despesa encontrada no per�odo especificado.\n";
+    } else {
+        cout << "---------------------------------------------------------------\n";
+        cout << "TOTAL NO PER�ODO: R$ " << fixed << setprecision(2) << total << endl;
+    }
+
+    fclose(DespesasMensais);
+    system("pause");
+}
+
+// FUN��O PARA RELAT�RIO DE GANHOS POR PER�ODO
+void RelatorioGanhosPeriodo() {
+    system("cls");
+    int mesInicio, mesFim, anoInicio, anoFim;
+
+    cout << "=== RELAT�RIO DE GANHOS POR PER�ODO ===\n";
+    cout << "M�s inicial (1-12): ";
+    cin >> mesInicio;
+    cout << "Ano inicial: ";
+    cin >> anoInicio;
+    cout << "M�s final (1-12): ";
+    cin >> mesFim;
+    cout << "Ano final: ";
+    cin >> anoFim;
+
+    GanhosMensais = fopen("ganhos.dat", "rb");
+    if (!GanhosMensais) {
+        cout << "Nenhum registro encontrado.\n";
+        system("pause");
+        return;
+    }
+
+    float total = 0;
+    int encontrou = 0;
+
+    cout << "\n========== GANHOS NO PER�ODO: " << mesInicio << "/" << anoInicio;
+    cout << " a " << mesFim << "/" << anoFim << " ==========\n";
+    cout << left << setw(25) << "Origem" << setw(10) << "M�s"
+         << setw(10) << "Ano" << setw(10) << "Valor (R$)" << endl;
+    cout << "---------------------------------------------------------------\n";
+
+    while (fread(&ganho, sizeof(ganho), 1, GanhosMensais)) {
+        // Verifica se o ganho est� dentro do per�odo especificado
+        if ((ganho.Data.ano > anoInicio || (ganho.Data.ano == anoInicio && ganho.Data.mes >= mesInicio)) &&
+            (ganho.Data.ano < anoFim || (ganho.Data.ano == anoFim && ganho.Data.mes <= mesFim))) {
+
+            cout << left << setw(25) << ganho.Descricao
+                 << setw(10) << ganho.Data.mes
+                 << setw(10) << ganho.Data.ano
+                 << "R$ " << fixed << setprecision(2) << ganho.valor << endl;
+
+            total += ganho.valor;
+            encontrou = 1;
+        }
+    }
+
+    if (!encontrou) {
+        cout << "Nenhum ganho encontrado no per�odo especificado.\n";
+    } else {
+        cout << "---------------------------------------------------------------\n";
+        cout << "TOTAL NO PER�ODO: R$ " << fixed << setprecision(2) << total << endl;
+    }
+
+    fclose(GanhosMensais);
+    system("pause");
+}
+
+// FUN��O PARA CALCULAR SOMA TOTAL DAS DESPESAS
+void SomaTotalDespesas() {
+    system("cls");
+    DespesasMensais = fopen("despesas.dat", "rb");
+    if (!DespesasMensais) {
+        cout << "Nenhuma despesa cadastrada.\n";
+        system("pause");
+        return;
+    }
+
+    float total = 0;
+    while (fread(&despesa, sizeof(despesa), 1, DespesasMensais)) {
+        total += despesa.valor;
+    }
+
+    cout << "=== SOMA TOTAL DAS DESPESAS ===\n";
+    cout << "TOTAL: R$ " << fixed << setprecision(2) << total << endl;
+
+    fclose(DespesasMensais);
+    system("pause");
+}
+
+// FUN��O PARA CALCULAR SOMA TOTAL DOS GANHOS
+void SomaTotalGanhos() {
+    system("cls");
+    GanhosMensais = fopen("ganhos.dat", "rb");
+    if (!GanhosMensais) {
+        cout << "Nenhum ganho cadastrado.\n";
+        system("pause");
+        return;
+    }
+
+    float total = 0;
+    while (fread(&ganho, sizeof(ganho), 1, GanhosMensais)) {
+        total += ganho.valor;
+    }
+
+    cout << "=== SOMA TOTAL DOS GANHOS ===\n";
+    cout << "TOTAL: R$ " << fixed << setprecision(2) << total << endl;
+
+    fclose(GanhosMensais);
+    system("pause");
+}
+
+// FUN��O PARA CALCULAR SALDO MENSAL
+void SaldoMensal() {
+    system("cls");
+    int mes, ano;
+
+    cout << "=== SALDO MENSAL ===\n";
+    cout << "M�s (1-12): ";
+    cin >> mes;
+    cout << "Ano: ";
+    cin >> ano;
+
+    // Calcula total de despesas no m�s/ano
+    float totalDespesas = 0;
+    DespesasMensais = fopen("despesas.dat", "rb");
+    if (DespesasMensais) {
+        while (fread(&despesa, sizeof(despesa), 1, DespesasMensais)) {
+            if (despesa.Data.mes == mes && despesa.Data.ano == ano) {
+                totalDespesas += despesa.valor;
+            }
+        }
+        fclose(DespesasMensais);
+    }
+
+    // Calcula total de ganhos no m�s/ano
+    float totalGanhos = 0;
+    GanhosMensais = fopen("ganhos.dat", "rb");
+    if (GanhosMensais) {
+        while (fread(&ganho, sizeof(ganho), 1, GanhosMensais)) {
+            if (ganho.Data.mes == mes && ganho.Data.ano == ano) {
+                totalGanhos += ganho.valor;
+            }
+        }
+        fclose(GanhosMensais);
+    }
+
+    float saldo = totalGanhos - totalDespesas;
+
+    cout << "\n======= RESUMO MENSAL " << mes << "/" << ano << " =======\n";
+    cout << "Total de Ganhos: R$ " << fixed << setprecision(2) << totalGanhos << endl;
+    cout << "Total de Despesas: R$ " << fixed << setprecision(2) << totalDespesas << endl;
+    cout << "----------------------------------------\n";
+    cout << "SALDO: R$ " << fixed << setprecision(2) << saldo << endl;
+
+    if (saldo > 0) {
+        cout << "Situa��o: SUPERAVIT\n";
+    } else if (saldo < 0) {
+        cout << "Situa��o: D�FICIT\n";
+    } else {
+        cout << "Situa��o: EQUILIBRADO\n";
+    }
+
+    system("pause");
+}
